@@ -1,0 +1,12 @@
+version: '3'
+services:
+  nio:
+    image: docker.io/library/nio:0.0.1-SNAPSHOT
+    ports:
+      - "5353:5353"
+    #limit cpu 1 mem 2g
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '2G'
