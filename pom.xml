@@ -42,6 +42,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,7 +58,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <
 <!--                    <image>-->
 <!--                        <env>-->
 <!--                            <HTTP_PROXY>http://172.20.10.1:1082</HTTP_PROXY>-->

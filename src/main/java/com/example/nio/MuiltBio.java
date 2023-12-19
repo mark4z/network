@@ -9,17 +9,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @Slf4j
-public class Bio implements CommandLineRunner {
+public class MuiltBio implements CommandLineRunner {
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(100);
+
     @Override
     public void run(String... args) {
         new Thread(() -> {
             ServerSocket serverSocket = null;
             try {
-                serverSocket = new ServerSocket(5353);
+                serverSocket = new ServerSocket(5354);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -39,24 +42,34 @@ public class Bio implements CommandLineRunner {
         }).start();
     }
 
-    private static void listen(ServerSocket serverSocket) throws Exception {
+    private static void listen(ServerSocket serverSocket) throws IOException {
         Socket socket = serverSocket.accept();
-        //下面我们收取信息
-        InputStream in = socket.getInputStream();
-        OutputStream out = socket.getOutputStream();
-        handle(socket, in, out);
-        //关闭
-        out.close();
-        in.close();
-        socket.close();
+        executorService.submit(
+                () -> {
+                    try {
+                        //下面我们收取信息
+                        InputStream in = socket.getInputStream();
+                        OutputStream out = socket.getOutputStream();
+                        handle(socket, in, out);
+                        //关闭
+                        out.close();
+                        in.close();
+                        socket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
     }
 
     private static void handle(Socket socket, InputStream in, OutputStream out) throws IOException, InterruptedException {
         int sourcePort = socket.getPort();
-        byte[] contextBytes = new byte[1024];
-        int read = in.read(contextBytes, 0, 1024);
+        int maxLen = 1024;
+        byte[] contextBytes = new byte[maxLen];
+        //这里也会被阻塞，直到有数据准备好
+        int realLen = in.read(contextBytes, 0, maxLen);
         //读取信息
-        String message = new String(contextBytes, 0, read);
+        String message = new String(contextBytes, 0, realLen);
         //下面打印信息
         log.info("服务器收到来自于端口: " + sourcePort + "的信息: " + message);
         Thread.sleep(20);

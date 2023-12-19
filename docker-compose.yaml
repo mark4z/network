@@ -1,12 +1,19 @@
 version: '3'
 services:
   nio:
-    image: docker.io/library/nio:0.0.1-SNAPSHOT
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - "./target/nio-0.0.1-SNAPSHOT.jar:/app/nio-0.0.1-SNAPSHOT.jar"
     ports:
       - "5353:5353"
+      - "5354:5354"
+      - "5355:5355"
+      - "5356:5356"
     #limit cpu 1 mem 2g
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: '2G'
+          cpus: '0.5'
+          memory: '1G'
